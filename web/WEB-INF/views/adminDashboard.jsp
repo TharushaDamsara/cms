@@ -1,9 +1,9 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="java.util.List" %>
-<%@ page import="edu.ijse.model.Complaint" %> <%-- Update with your actual Complaint class path --%>
+<%@ page import="edu.ijse.dto.ComplaintDto" %> <%-- Update with your actual Complaint class path --%>
 
 <%
-  List<Complaint> complaints = (List<Complaint>) request.getAttribute("complaints");
+  List<ComplaintDto> complaintDtos = (List<ComplaintDto>) request.getAttribute("complaints");
 %>
 
 <!DOCTYPE html>
@@ -29,28 +29,28 @@
     </thead>
     <tbody>
     <%
-      if (complaints != null) {
-        for (Complaint complaint : complaints) {
+      if (complaintDtos != null) {
+        for (ComplaintDto complaintDto : complaintDtos) {
     %>
     <tr>
-      <td><%= complaint.getId() %></td>
-      <td><%= complaint.getUsername() %></td>
-      <td><%= complaint.getSubject() %></td>
-      <td><%= complaint.getStatus() %></td>
-      <td><%= complaint.getRemarks() %></td>
+      <td><%= complaintDto.getId() %></td>
+      <td><%= complaintDto.getUsername() %></td>
+      <td><%= complaintDto.getSubject() %></td>
+      <td><%= complaintDto.getStatus() %></td>
+      <td><%= complaintDto.getRemarks() %></td>
       <td>
         <form action="updateStatus" method="post" class="d-flex gap-1">
-          <input type="hidden" name="id" value="<%= complaint.getId() %>">
+          <input type="hidden" name="id" value="<%= complaintDto.getId() %>">
           <select name="status" class="form-select form-select-sm">
-            <option <%= "Pending".equals(complaint.getStatus()) ? "selected" : "" %>>Pending</option>
-            <option <%= "In Progress".equals(complaint.getStatus()) ? "selected" : "" %>>In Progress</option>
-            <option <%= "Resolved".equals(complaint.getStatus()) ? "selected" : "" %>>Resolved</option>
+            <option <%= "Pending".equals(complaintDto.getStatus()) ? "selected" : "" %>>Pending</option>
+            <option <%= "In Progress".equals(complaintDto.getStatus()) ? "selected" : "" %>>In Progress</option>
+            <option <%= "Resolved".equals(complaintDto.getStatus()) ? "selected" : "" %>>Resolved</option>
           </select>
-          <input type="text" name="remarks" value="<%= complaint.getRemarks() %>" class="form-control form-control-sm" required>
+          <input type="text" name="remarks" value="<%= complaintDto.getRemarks() %>" class="form-control form-control-sm" required>
           <button type="submit" class="btn btn-sm btn-success">Update</button>
         </form>
         <form action="deleteComplaint" method="post" style="margin-top:5px;">
-          <input type="hidden" name="id" value="<%= complaint.getId() %>">
+          <input type="hidden" name="id" value="<%= complaintDto.getId() %>">
           <button type="submit" class="btn btn-sm btn-danger">Delete</button>
         </form>
       </td>

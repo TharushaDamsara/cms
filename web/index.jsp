@@ -35,7 +35,7 @@
             </div>
             <div class="text-center mt-3">
                 <small class="text-muted">Already have an account?
-                    <a href="./jsp/signUp.jsp" class="text-decoration-none">Sign In</a>
+                    <a href="WEB-INF/views/signUp.jsp" class="text-decoration-none">Sign In</a>
                 </small>
             </div>
         </div>

@@ -1,7 +1,6 @@
 package edu.ijse.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import edu.ijse.dto.ComplaintDto;
 import edu.ijse.dto.UserDto;
 import edu.ijse.model.SignUpModel;
 import jakarta.annotation.Resource;
@@ -14,7 +13,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;

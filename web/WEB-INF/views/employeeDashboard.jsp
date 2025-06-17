@@ -1,11 +1,11 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="java.util.List" %>
-<%@ page import="edu.ijse.model.Complaint" %>
+<%@ page import="edu.ijse.dto.ComplaintDto" %>
 
 
 
 <%
-  List<Complaint> complaints = (List<Complaint>) request.getAttribute("complaints");
+  List<ComplaintDto> complaintDtos = (List<ComplaintDto>) request.getAttribute("complaints");
 %>
 
 <!DOCTYPE html>
@@ -14,7 +14,7 @@
   <meta charset="UTF-8">
   <title>My Complaints</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <script src="../js/employeedash.js"></script>
+  <script src="../../js/employeedash.js"></script>
 </head>
 <body>
 <div class="container mt-5">
@@ -29,16 +29,16 @@
     </tr>
     </thead>
     <tbody>
-    <% if (complaints != null) {
-      for (Complaint complaint : complaints) { %>
+    <% if (complaintDtos != null) {
+      for (ComplaintDto complaintDto : complaintDtos) { %>
     <tr>
-      <td><%= complaint.getId() %></td>
-      <td><%= complaint.getSubject() %></td>
-      <td><%= complaint.getStatus() %></td>
+      <td><%= complaintDto.getId() %></td>
+      <td><%= complaintDto.getSubject() %></td>
+      <td><%= complaintDto.getStatus() %></td>
       <td>
-        <a href="editComplaint?id=<%= complaint.getId() %>" class="btn btn-warning btn-sm">Edit</a>
+        <a href="editComplaint?id=<%= complaintDto.getId() %>" class="btn btn-warning btn-sm">Edit</a>
         <form action="deleteComplaint" method="post" style="display:inline;">
-          <input type="hidden" name="id" value="<%= complaint.getId() %>">
+          <input type="hidden" name="id" value="<%= complaintDto.getId() %>">
           <button type="submit" class="btn btn-danger btn-sm">Delete</button>
         </form>
       </td>
@@ -50,6 +50,7 @@
     </tbody>
   </table>
 </div>
+
 
 </body>
 </html>
