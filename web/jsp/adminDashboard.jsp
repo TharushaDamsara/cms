@@ -1,11 +1,10 @@
-<%--
-  Created by IntelliJ IDEA.
-  User: tharusha
-  Date: 6/13/2025
-  Time: 12:06 AM
-  To change this template use File | Settings | File Templates.
---%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page import="java.util.List" %>
+<%@ page import="edu.ijse.model.Complaint" %> <%-- Update with your actual Complaint class path --%>
+
+<%
+  List<Complaint> complaints = (List<Complaint>) request.getAttribute("complaints");
+%>
 
 <!DOCTYPE html>
 <html>
@@ -29,34 +28,43 @@
     </tr>
     </thead>
     <tbody>
-    <c:forEach var="complaint" items="${complaints}">
-      <tr>
-        <td>${complaint.id}</td>
-        <td>${complaint.username}</td>
-        <td>${complaint.subject}</td>
-        <td>${complaint.status}</td>
-        <td>${complaint.remarks}</td>
-        <td>
-          <form action="updateStatus" method="post" class="d-flex gap-1">
-            <input type="hidden" name="id" value="${complaint.id}">
-            <select name="status" class="form-select form-select-sm">
-              <option ${complaint.status == 'Pending' ? 'selected' : ''}>Pending</option>
-              <option ${complaint.status == 'In Progress' ? 'selected' : ''}>In Progress</option>
-              <option ${complaint.status == 'Resolved' ? 'selected' : ''}>Resolved</option>
-            </select>
-            <input type="text" name="remarks" placeholder="Remarks" value="${complaint.remarks}" class="form-control form-control-sm" required>
-            <button type="submit" class="btn btn-sm btn-success">Update</button>
-          </form>
-          <form action="deleteComplaint" method="post" style="margin-top:5px;">
-            <input type="hidden" name="id" value="${complaint.id}">
-            <button type="submit" class="btn btn-sm btn-danger">Delete</button>
-          </form>
-        </td>
-      </tr>
-    </c:forEach>
+    <%
+      if (complaints != null) {
+        for (Complaint complaint : complaints) {
+    %>
+    <tr>
+      <td><%= complaint.getId() %></td>
+      <td><%= complaint.getUsername() %></td>
+      <td><%= complaint.getSubject() %></td>
+      <td><%= complaint.getStatus() %></td>
+      <td><%= complaint.getRemarks() %></td>
+      <td>
+        <form action="updateStatus" method="post" class="d-flex gap-1">
+          <input type="hidden" name="id" value="<%= complaint.getId() %>">
+          <select name="status" class="form-select form-select-sm">
+            <option <%= "Pending".equals(complaint.getStatus()) ? "selected" : "" %>>Pending</option>
+            <option <%= "In Progress".equals(complaint.getStatus()) ? "selected" : "" %>>In Progress</option>
+            <option <%= "Resolved".equals(complaint.getStatus()) ? "selected" : "" %>>Resolved</option>
+          </select>
+          <input type="text" name="remarks" value="<%= complaint.getRemarks() %>" class="form-control form-control-sm" required>
+          <button type="submit" class="btn btn-sm btn-success">Update</button>
+        </form>
+        <form action="deleteComplaint" method="post" style="margin-top:5px;">
+          <input type="hidden" name="id" value="<%= complaint.getId() %>">
+          <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+        </form>
+      </td>
+    </tr>
+    <%
+      }
+    } else {
+    %>
+    <tr><td colspan="6" class="text-center">No complaints found.</td></tr>
+    <%
+      }
+    %>
     </tbody>
   </table>
 </div>
 </body>
 </html>
-

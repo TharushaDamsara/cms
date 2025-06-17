@@ -1,11 +1,7 @@
-<%--
-  Created by IntelliJ IDEA.
-  User: tharusha
-  Date: 6/15/2025
-  Time: 11:49 PM
-  To change this template use File | Settings | File Templates.
---%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%
+    String error = (String) request.getAttribute("error");
+%>
 <html>
 <head>
     <meta charset="UTF-8">
@@ -21,10 +17,10 @@
                     <h4>Complaint Management System</h4>
                 </div>
                 <div class="card-body">
-                    <:if test="${not empty error}">
-                        <div class="alert alert-danger">${error}</div>
-                    </:if>
-                    <form action="login" method="post">
+                    <% if (error != null && !error.isEmpty()) { %>
+                    <div class="alert alert-danger"><%= error %></div>
+                    <% } %>
+                    <form action="index.jsp" method="post">
                         <div class="mb-3">
                             <label class="form-label">Username</label>
                             <input type="text" name="username" class="form-control" required>
@@ -36,6 +32,11 @@
                         <button type="submit" class="btn btn-primary w-100">Login</button>
                     </form>
                 </div>
+            </div>
+            <div class="text-center mt-3">
+                <small class="text-muted">Already have an account?
+                    <a href="./jsp/signUp.jsp" class="text-decoration-none">Sign In</a>
+                </small>
             </div>
         </div>
     </div>
