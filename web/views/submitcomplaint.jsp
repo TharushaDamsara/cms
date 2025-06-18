@@ -26,6 +26,7 @@
             <textarea name="description" rows="4" class="form-control" required></textarea>
         </div>
         <button type="submit" class="btn btn-success">Submit Complaint</button>
+        <button type="button" class="btn btn-success">My ComPlaints</button>
     </form>
 </div>
 </body>

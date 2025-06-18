@@ -9,21 +9,23 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class SignInModel {
-    public int checkCredentials(UserDto dto, DataSource ds) {
+    public UserDto checkCredentials(UserDto dto, DataSource ds) {
+        try (Connection connection = ds.getConnection()) {
+            String sql = "SELECT id, email,role FROM users WHERE email = ? AND password = ?";
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
 
-        try {
-            Connection connection = ds.getConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM users WHERE email = ? AND password = ?");
-
-            preparedStatement.setString(1,dto.getEmail());
+            preparedStatement.setString(1, dto.getEmail());
             preparedStatement.setString(2, dto.getPassword());
 
             ResultSet resultSet = preparedStatement.executeQuery();
-            if (resultSet.next()){
-                return 1;
+            if (resultSet.next()) {
+                UserDto user = new UserDto();
+                user.setId(resultSet.getInt("id"));
+                user.setEmail(resultSet.getString("email"));
+                user.setRole(resultSet.getString("role"));
+                return user;
             }
-           return 0;
-
+            return null; // No matching user
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

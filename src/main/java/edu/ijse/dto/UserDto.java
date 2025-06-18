@@ -1,17 +1,20 @@
 package edu.ijse.dto;
 
 public class UserDto {
+    private int id;
     private String name;
     private String email;
     private String password;
     private String role;
 
-    public UserDto(String email, String name, String password, String role) {
+    public UserDto(String email, int id, String name, String password, String role) {
         this.email = email;
+        this.id = id;
         this.name = name;
         this.password = password;
         this.role = role;
     }
+
     public UserDto() {
     }
 
@@ -21,6 +24,14 @@ public class UserDto {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getName() {

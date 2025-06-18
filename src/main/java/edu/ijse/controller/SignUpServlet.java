@@ -36,7 +36,12 @@ public class SignUpServlet extends HttpServlet {
         String password = users.get("password");
         String role = users.get("role");
 
-        UserDto dto = new UserDto(name,email,password,role);
+        UserDto dto = new UserDto();
+        dto.setName(name);
+        dto.setPassword(password);
+        dto.setEmail(email);
+        dto.setRole(role);
+
 
         int i = model.adduser(dto, ds);
         resp.setContentType("application/json");

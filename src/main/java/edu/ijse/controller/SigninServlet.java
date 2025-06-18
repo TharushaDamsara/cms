@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.ijse.dto.UserDto;
 import edu.ijse.model.SignInModel;
 import jakarta.annotation.Resource;
-import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -20,18 +19,17 @@ import java.util.Map;
 public class SigninServlet extends HttpServlet {
     @Resource(name = "java:comp/env/jdbc/pool")
     private DataSource ds;
+
     SignInModel model = new SignInModel();
+
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         ObjectMapper mapper = new ObjectMapper();
-        Map<String,String> users = mapper.readValue(req.getInputStream(),Map.class);
+        Map<String, String> users = mapper.readValue(req.getInputStream(), Map.class);
 
         String email = users.get("email");
         String password = users.get("password");
 
-        UserDto dto = new UserDto();
-        dto.setEmail(email);
-        dto.setPassword(password);
         resp.setContentType("application/json");
         PrintWriter out = resp.getWriter();
 
@@ -46,25 +44,35 @@ public class SigninServlet extends HttpServlet {
             return;
         }
 
-        ServletContext sc = req.getServletContext();
-        int i = model.checkCredentials(dto,ds);
+        // Prepare DTO for checking credentials
+        UserDto dto = new UserDto();
+        dto.setEmail(email);
+        dto.setPassword(password);
 
-    if (i>0){
-        resp.setStatus(HttpServletResponse.SC_OK);
-        mapper.writeValue(out, Map.of(
-                "code", "200",
-                "status", "Login Success",
-                "message", "You have been logged in successfully"
-        ));
-    } else {
-        resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        mapper.writeValue(out, Map.of(
-                "code", "401",
-                "status", "Unauthorized",
-                "message", "Unauthorized Behaviour"
-        ));
+        // Check credentials and get full user info
+        UserDto user = model.checkCredentials(dto, ds);
+
+        if (user != null) {
+            // Set session attributes for later use
+            req.getSession().setAttribute("user_id", user.getId());
+            req.getSession().setAttribute("user_email", user.getEmail());
+            System.out.println(user.getRole());
+
+            resp.setStatus(HttpServletResponse.SC_OK);
+            resp.getWriter().write(user.getRole());
+
+            mapper.writeValue(out, Map.of(
+                    "code", "200",
+                    "status", "Login Success",
+                    "message", "You have been logged in successfully"
+            ));
+        } else {
+            resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            mapper.writeValue(out, Map.of(
+                    "code", "401",
+                    "status", "Unauthorized",
+                    "message", "Invalid email or password"
+            ));
+        }
     }
-
-    }
-
 }

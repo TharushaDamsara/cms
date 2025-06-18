@@ -14,7 +14,7 @@
   <meta charset="UTF-8">
   <title>My Complaints</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <script src="../../js/employeedash.js"></script>
+  <script src="../js/employeedash.js"></script>
 </head>
 <body>
 <div class="container mt-5">

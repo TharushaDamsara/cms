@@ -50,7 +50,7 @@
 
     <div class="text-center mt-3">
         <small class="text-muted">Already have an account?
-            <a href="../../index.jsp" class="text-decoration-none">Login</a>
+            <a href="../index.jsp" class="text-decoration-none">Login</a>
         </small>
     </div>
 </div>

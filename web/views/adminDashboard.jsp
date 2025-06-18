@@ -34,7 +34,7 @@
     %>
     <tr>
       <td><%= complaintDto.getId() %></td>
-      <td><%= complaintDto.getUsername() %></td>
+      <td><%= complaintDto.getUserId() %></td>
       <td><%= complaintDto.getSubject() %></td>
       <td><%= complaintDto.getStatus() %></td>
       <td><%= complaintDto.getRemarks() %></td>
