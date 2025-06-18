@@ -1,6 +1,5 @@
 package edu.ijse.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.ijse.dto.ComplaintDto;
 import edu.ijse.model.EmployeeModel;
 import jakarta.annotation.Resource;
@@ -12,155 +11,76 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import javax.sql.DataSource;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 @WebServlet("/employee")
-
 public class EmployeeServlet extends HttpServlet {
 
     @Resource(name = "java:comp/env/jdbc/pool")
     private DataSource ds;
-    EmployeeModel model = new EmployeeModel();
+
+    private final EmployeeModel model = new EmployeeModel();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        resp.setContentType("application/json");
-        PrintWriter out = resp.getWriter();
+        // Fetch user email from session
+        String userEmail = (String) req.getSession().getAttribute("user_email");
+
+        if (userEmail == null) {
+            resp.sendRedirect(req.getContextPath() + "/index.jsp");
+            return;
+        }
 
         try {
-            String userEmail = (String) req.getSession().getAttribute("user_email");
-            if (userEmail == null) {
-                resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                out.write("{\"error\":\"User not logged in.\"}");
-                return;
-            }
-
+            // Fetch complaints belonging to the logged-in employee
             ArrayList<HashMap<String, Object>> complaints = model.getAllComplaintsWithUser(ds, userEmail);
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.writeValue(out, complaints);
-
+            req.setAttribute("complaints", complaints);
         } catch (Exception e) {
             e.printStackTrace();
-            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Failed to load complaints.");
+            req.setAttribute("error", "Failed to load complaints.");
         }
+
+        req.getRequestDispatcher("/web/views/employeeDashboard.jsp").forward(req, resp);
     }
 
     @Override
-    protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        ObjectMapper mapper = new ObjectMapper();
-        Map<String, Object> clist = mapper.readValue(req.getInputStream(), Map.class);
-        resp.setContentType("application/json");
-        PrintWriter out = resp.getWriter();
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String action = req.getParameter("action");
 
         try {
-            // Validate and extract fields
-            if (clist.get("id") == null || clist.get("subject") == null || clist.get("description") == null) {
-                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                mapper.writeValue(out, Map.of(
-                        "code", "400",
-                        "status", "Bad Request",
-                        "message", "Complaint ID, subject, and description are required"
-                ));
-                return;
+            if ("update".equalsIgnoreCase(action)) {
+                int id = Integer.parseInt(req.getParameter("id"));
+                String subject = req.getParameter("subject");
+                String description = req.getParameter("description");
+
+                ComplaintDto dto = new ComplaintDto();
+                dto.setId(id);
+                dto.setSubject(subject);
+                dto.setDiscription(description);
+
+                int success = model.updateComplints(ds, dto);
+                if (success>0) {
+                    req.setAttribute("message", "Complaint updated successfully.");
+                } else {
+                    req.setAttribute("error", "Failed to update complaint.");
+                }
+            } else if ("delete".equalsIgnoreCase(action)) {
+                int id = Integer.parseInt(req.getParameter("id"));
+                int success = model.deleteBypk(ds, id);
+                if (success>0) {
+                    req.setAttribute("message", "Complaint deleted successfully.");
+                } else {
+                    req.setAttribute("error", "Failed to delete complaint.");
+                }
             }
-
-            int complaintId = Integer.parseInt(clist.get("id").toString());
-            String subject = clist.get("subject").toString();
-            String description = clist.get("description").toString();
-
-            // Create DTO
-            ComplaintDto dto = new ComplaintDto();
-            dto.setId(complaintId);
-            dto.setSubject(subject);
-            dto.setDiscription(description);
-
-            int i = model.updateComplints(ds, dto);
-
-            if (i > 0) {
-                resp.setStatus(HttpServletResponse.SC_OK);
-                mapper.writeValue(out, Map.of(
-                        "code", "200",
-                        "status", "Success",
-                        "message", "Complaint updated successfully"
-                ));
-            } else {
-                resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
-                mapper.writeValue(out, Map.of(
-                        "code", "404",
-                        "status", "Not Found",
-                        "message", "No complaint found with given ID"
-                ));
-            }
-
         } catch (Exception e) {
-            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            mapper.writeValue(out, Map.of(
-                    "code", "500",
-                    "status", "Error",
-                    "message", e.getMessage()
-            ));
             e.printStackTrace();
+            req.setAttribute("error", "An error occurred.");
         }
+
+        // Reload updated complaint list
+        doGet(req, resp);
     }
-
-    @Override
-    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        ObjectMapper mapper = new ObjectMapper();
-        PrintWriter out = resp.getWriter();
-        resp.setContentType("application/json");
-
-        try {
-            String idParam = req.getParameter("id");
-
-            if (idParam == null || idParam.isEmpty()) {
-                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                mapper.writeValue(out, Map.of(
-                        "code", "400",
-                        "status", "Bad Request",
-                        "message", "Complaint ID is required"
-                ));
-                return;
-            }
-
-            int id = Integer.parseInt(idParam);
-
-            int i = model.deleteBypk(ds, id);
-            if (i > 0) {
-                resp.setStatus(HttpServletResponse.SC_OK);
-                mapper.writeValue(out, Map.of(
-                        "code", "200",
-                        "status", "Success",
-                        "message", "Complaint deleted successfully"
-                ));
-            } else {
-                resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
-                mapper.writeValue(out, Map.of(
-                        "code", "404",
-                        "status", "Not Found",
-                        "message", "No complaint found with given ID"
-                ));
-            }
-
-        } catch (NumberFormatException e) {
-            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            mapper.writeValue(out, Map.of(
-                    "code", "400",
-                    "status", "Bad Request",
-                    "message", "Complaint ID must be a valid integer"
-            ));
-        } catch (Exception e) {
-            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            mapper.writeValue(out, Map.of(
-                    "code", "500",
-                    "status", "Error",
-                    "message", e.getMessage()
-            ));
-            e.printStackTrace();
-        }
-    }
-
 }

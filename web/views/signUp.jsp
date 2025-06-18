@@ -31,22 +31,39 @@
     </div>
     <% } %>
 
-    <form action="signup" method="post">
+    <form action="<%=request.getContextPath()%>/signUp" method="post">
+        <% if (request.getParameter("success") != null) { %>
+        <div class="alert alert-success">Account created successfully! Please log in.</div>
+        <% } %>
+
         <div class="form-floating mb-3">
             <input type="text" class="form-control" id="name" name="name" placeholder="Full Name" required>
             <label for="name">Full Name</label>
         </div>
+
         <div class="form-floating mb-3">
             <input type="email" class="form-control" id="email" name="email" placeholder="name@example.com" required>
             <label for="email">Email address</label>
         </div>
+
         <div class="form-floating mb-3">
             <input type="password" class="form-control" id="password" name="password" placeholder="Password" required>
             <label for="password">Password</label>
         </div>
 
+        <!-- 👇 Role selector added here -->
+        <div class="form-floating mb-3">
+            <select class="form-select" id="role" name="role" required>
+                <option value="" disabled selected>Select role</option>
+                <option value="admin">Admin</option>
+                <option value="employee">Employee</option>
+            </select>
+            <label for="role">Role</label>
+        </div>
+
         <button class="btn btn-primary w-100" type="submit">Sign Up</button>
     </form>
+
 
     <div class="text-center mt-3">
         <small class="text-muted">Already have an account?

@@ -1,6 +1,5 @@
 package edu.ijse.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.ijse.dto.UserDto;
 import edu.ijse.model.SignInModel;
 import jakarta.annotation.Resource;
@@ -12,67 +11,49 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import javax.sql.DataSource;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.Map;
 
 @WebServlet("/signIn")
 public class SigninServlet extends HttpServlet {
     @Resource(name = "java:comp/env/jdbc/pool")
     private DataSource ds;
 
-    SignInModel model = new SignInModel();
+    private final SignInModel model = new SignInModel();
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        ObjectMapper mapper = new ObjectMapper();
-        Map<String, String> users = mapper.readValue(req.getInputStream(), Map.class);
+        // Read form parameters
+        String email = req.getParameter("email");
+        String password = req.getParameter("password");
 
-        String email = users.get("email");
-        String password = users.get("password");
-
-        resp.setContentType("application/json");
-        PrintWriter out = resp.getWriter();
-
-        // Basic input validation
+        // Basic validation
         if (email == null || email.trim().isEmpty() || password == null || password.trim().isEmpty()) {
-            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            mapper.writeValue(out, Map.of(
-                    "code", "400",
-                    "status", "Bad Request",
-                    "message", "Email and password are required"
-            ));
+            req.setAttribute("error", "Email and password are required.");
+            req.getRequestDispatcher("/login.jsp").forward(req, resp);
             return;
         }
 
-        // Prepare DTO for checking credentials
+        // Create DTO and check credentials
         UserDto dto = new UserDto();
         dto.setEmail(email);
         dto.setPassword(password);
 
-        // Check credentials and get full user info
         UserDto user = model.checkCredentials(dto, ds);
 
         if (user != null) {
-            // Set session attributes for later use
+            // Store user data in session
             req.getSession().setAttribute("user_id", user.getId());
             req.getSession().setAttribute("user_email", user.getEmail());
-            System.out.println(user.getRole());
+            req.getSession().setAttribute("user_role", user.getRole());
 
-            resp.setStatus(HttpServletResponse.SC_OK);
-            resp.getWriter().write(user.getRole());
-
-            mapper.writeValue(out, Map.of(
-                    "code", "200",
-                    "status", "Login Success",
-                    "message", "You have been logged in successfully"
-            ));
+            if ("admin".equalsIgnoreCase(user.getRole())) {
+                resp.sendRedirect(req.getContextPath() + "/views/adminDashboard.jsp");
+            } else {
+                resp.sendRedirect(req.getContextPath() + "/views/submitcomplaint.jsp");
+            }
         } else {
-            resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            mapper.writeValue(out, Map.of(
-                    "code", "401",
-                    "status", "Unauthorized",
-                    "message", "Invalid email or password"
-            ));
+            // Invalid login - forward back with error
+            req.setAttribute("error", "Invalid email or password.");
+            req.getRequestDispatcher("/index.jsp").forward(req, resp);
         }
     }
 }

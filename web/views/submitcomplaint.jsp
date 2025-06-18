@@ -6,6 +6,7 @@
   To change this template use File | Settings | File Templates.
 --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -26,8 +27,25 @@
             <textarea name="description" rows="4" class="form-control" required></textarea>
         </div>
         <button type="submit" class="btn btn-success">Submit Complaint</button>
-        <button type="button" class="btn btn-success">My ComPlaints</button>
+        <button type="button" id="myComplaintsBtn" class="btn btn-primary">My Complaints</button>
     </form>
 </div>
+
+<!-- Then script here -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const btn = document.getElementById('myComplaintsBtn');
+        if (btn) {
+            btn.addEventListener('click', function() {
+                alert('My Complaints button clicked!');
+                window.location.href = 'employeeDashboard.jsp';
+            });
+        } else {
+            console.error("Button with id 'myComplaintsBtn' not found.");
+        }
+    });
+</script>
+
+
 </body>
 </html>
