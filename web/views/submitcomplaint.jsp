@@ -1,10 +1,3 @@
-<%--
-  Created by IntelliJ IDEA.
-  User: tharusha
-  Date: 6/13/2025
-  Time: 12:02 AM
-  To change this template use File | Settings | File Templates.
---%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 
 <!DOCTYPE html>
@@ -17,35 +10,27 @@
 <body class="bg-light">
 <div class="container mt-5">
     <h3 class="mb-4">Submit a New Complaint</h3>
-    <form action="submitComplaint" method="post">
+
+    <%-- Display success or error messages --%>
+    <% if (request.getAttribute("message") != null) { %>
+    <div class="alert alert-success"><%= request.getAttribute("message") %></div>
+    <% } %>
+    <% if (request.getAttribute("error") != null) { %>
+    <div class="alert alert-danger"><%= request.getAttribute("error") %></div>
+    <% } %>
+
+    <form action="<%= request.getContextPath() %>/complaint" method="post">
         <div class="mb-3">
-            <label class="form-label">Subject</label>
-            <input type="text" name="subject" class="form-control" required>
+            <label for="subject" class="form-label">Subject</label>
+            <input type="text" id="subject" name="subject" class="form-control" required
+                   value="<%= request.getParameter("subject") != null ? request.getParameter("subject") : "" %>">
         </div>
         <div class="mb-3">
-            <label class="form-label">Description</label>
-            <textarea name="description" rows="4" class="form-control" required></textarea>
+            <label for="description" class="form-label">Description</label>
+            <textarea id="description" name="description" rows="4" class="form-control" required><%= request.getParameter("description") != null ? request.getParameter("description") : "" %></textarea>
         </div>
         <button type="submit" class="btn btn-success">Submit Complaint</button>
-        <button type="button" id="myComplaintsBtn" class="btn btn-primary">My Complaints</button>
     </form>
 </div>
-
-<!-- Then script here -->
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const btn = document.getElementById('myComplaintsBtn');
-        if (btn) {
-            btn.addEventListener('click', function() {
-                alert('My Complaints button clicked!');
-                window.location.href = 'employeeDashboard.jsp';
-            });
-        } else {
-            console.error("Button with id 'myComplaintsBtn' not found.");
-        }
-    });
-</script>
-
-
 </body>
 </html>

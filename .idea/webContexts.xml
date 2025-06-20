@@ -7,6 +7,8 @@
         <entry key="file://$PROJECT_DIR$/web/index.jsp" value="file://$PROJECT_DIR$/web" />
         <entry key="file://$PROJECT_DIR$/web/jsp/adminDashboard.jsp" value="file://$PROJECT_DIR$/web/jsp" />
         <entry key="file://$PROJECT_DIR$/web/jsp/employeeDashboard.jsp" value="file://$PROJECT_DIR$/web/jsp" />
+        <entry key="file://$PROJECT_DIR$/web/views/adminDashboard.jsp" value="file://$PROJECT_DIR$/web/views" />
+        <entry key="file://$PROJECT_DIR$/web/views/employeeDashboard.jsp" value="file://$PROJECT_DIR$/web/views" />
         <entry key="file://$PROJECT_DIR$/web/views/submitcomplaint.jsp" value="file://$PROJECT_DIR$/web/views" />
       </map>
     </option>

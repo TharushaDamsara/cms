@@ -26,64 +26,58 @@ public class ComplaintServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        ObjectMapper mapper = new ObjectMapper();
-        resp.setContentType("application/json");
-        PrintWriter out = resp.getWriter();
+        // Set encoding to avoid issues with special chars
+        req.setCharacterEncoding("UTF-8");
+        resp.setContentType("text/html;charset=UTF-8");
 
         try {
-            // Parse JSON request body to Map
-            Map<String, Object> complaints = mapper.readValue(req.getInputStream(), Map.class);
+            // Read form parameters
+            String userIdStr = req.getParameter("user_id"); // you may need to get from session instead
+            String subject = req.getParameter("subject");
+            String description = req.getParameter("description");
 
-            // Extract and convert data
-            int userId = Integer.parseInt(complaints.get("user_id").toString());
-            String subject = complaints.get("subject").toString();
-            String description = complaints.get("description").toString();
-            String status = complaints.get("status").toString();
-            String remarks = complaints.get("remarks").toString();
+            if (subject == null || description == null || subject.trim().isEmpty() || description.trim().isEmpty()) {
+                req.setAttribute("error", "Subject and Description are required.");
+                req.getRequestDispatcher("/views/submitcomplaint.jsp").forward(req, resp);
+                return;
+            }
 
-            // Create DTO
+            // For userId, you probably want to get from session (not form) to avoid spoofing:
+            Integer userId = null;
+            Object userIdObj = req.getSession().getAttribute("user_id");
+            if (userIdObj != null) {
+                userId = Integer.parseInt(userIdObj.toString());
+            } else {
+                req.setAttribute("error", "User not logged in.");
+                req.getRequestDispatcher("/index.jsp").forward(req, resp);
+                return;
+            }
+
             ComplaintDto dto = new ComplaintDto();
             dto.setUserId(userId);
             dto.setSubject(subject);
             dto.setDiscription(description);
-            dto.setStatus(status);
-            dto.setRemarks(remarks);
 
-            // Insert into DB
+            // You may want to set default status & remarks here if not in form
+            dto.setStatus("Pending");  // default status
+            dto.setRemarks("");        // default remarks
+
+            // Call model to insert complaint
             int result = model.addComplainnts(ds, dto);
 
             if (result > 0) {
-                resp.setStatus(HttpServletResponse.SC_OK);
-                mapper.writeValue(out, Map.of(
-                        "code", "200",
-                        "status", "Complaint Submitted",
-                        "message", "Your complaint has been recorded successfully."
-                ));
+                req.setAttribute("message", "Complaint submitted successfully.");
+                req.getRequestDispatcher("/views/submitcomplaint.jsp").forward(req, resp);
             } else {
-                resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                mapper.writeValue(out, Map.of(
-                        "code", "500",
-                        "status", "Failed",
-                        "message", "Failed to submit complaint."
-                ));
+                req.setAttribute("error", "Failed to submit complaint.");
+                req.getRequestDispatcher("/views/submitcomplaint.jsp").forward(req, resp);
             }
 
-        } catch (SQLException e) {
-            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            mapper.writeValue(out, Map.of(
-                    "code", "500",
-                    "status", "Database Error",
-                    "message", e.getMessage()
-            ));
-            e.printStackTrace();
         } catch (Exception e) {
-            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            mapper.writeValue(out, Map.of(
-                    "code", "400",
-                    "status", "Bad Request",
-                    "message", "Invalid complaint data"
-            ));
             e.printStackTrace();
+            req.setAttribute("error", "An error occurred.");
+            req.getRequestDispatcher("/views/submitcomplaint.jsp").forward(req, resp);
         }
     }
+
 }
